@@ -2,7 +2,7 @@
 
 CCSDS File Delivery Protocol C Portable Implementation
 
-Based on CCSDS 720.2-G-4
+Based on CCSDS 720.2-G-4 accessible here https://ccsds.org/Pubs/720x2g4.pdf
 
 ## Features
 
