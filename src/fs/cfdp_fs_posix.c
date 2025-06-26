@@ -5,12 +5,12 @@
 #include <stdio.h>
 
 int cfdp_fs_open(const char *filename, int write_mode) {
-    it (!write_mode) {
+    if (!write_mode) {
         // Open file for reading
         return open(filename, O_RDONLY);
     } else {
         // Open file for writing
-        return open(filenamen, O_WRONLY | O_CREAT | O_TRUC, 0666); // 0666 : rwx rwx rwx
+        return open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666); // 0666 : rwx rwx rwx
     }
 }
 
@@ -24,7 +24,7 @@ int cfdp_fs_read(int fh, void *buffer, size_t size) {
 }
 
 int cfdp_fs_write(int fh, const void *buffer, size_t size) {
-    if (fg < 0) return -1;
+    if (fh < 0) return -1;
 
     ssize_t ret = write(fh, buffer, size);
     return (ret < 0) ? -1 : (int)ret;
