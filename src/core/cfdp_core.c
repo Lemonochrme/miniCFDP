@@ -68,7 +68,7 @@ int cfdp_start_transaction(uint32_t dest_id, const char *src_file, const char *d
     // Notify user
 }
 
-int cfdp_cancel_transaction(utin32_t transaction_id) {
+int cfdp_cancel_transaction(uint32_t transaction_id) {
     // Find the transaction by ID
     for (int i = 0; i < CFDP_MAX_TRANSACTIONS; i++) {
         if (g_transaction[i].transaction_id == transaction_id && g_transaction[i].state != CFDP_TRAN_STATE_IDLE) {
@@ -84,7 +84,7 @@ int cfdp_cancel_transaction(utin32_t transaction_id) {
 
 // Minimal PDU handling, TODO : in a complete implementation we must parse the header to determine the PDU type : Metadata, File Data, EOF...
 // Here, for now, we assume any received data is file data
-void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, utint32_t src_entity_id) {
+void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, uint32_t src_entity_id) {
     // Find or start a transaction for this source
     CfdpTransaction *rx = NULL;
 
