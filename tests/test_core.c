@@ -1,4 +1,4 @@
-#include "../src/ui/cfdp_ui.h"
+#include "../src/ui/cfdp_user.h"
 #include "../src/mib/cfdp_mib.h"
 #include "../src/fs/cfdp_fs.h"
 #include "../src/core/cfdp_core.h"

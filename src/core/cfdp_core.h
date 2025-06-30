@@ -10,7 +10,7 @@
 #include "../mib/cfdp_mib.h"
 #include "../fs/cfdp_fs.h"
 #include "../comm/cfdp_comm.h"
-#include "../ui/cfdp_ui.h"
+#include "../ui/cfdp_user.h"
 
 #define CFDP_MAX_TRANSACTIONS 4 // Simulataneous transactions (static allocation)
 

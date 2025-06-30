@@ -35,7 +35,15 @@ test.all: test.fs test.comm_udp test.core
 # legacy shortcut for CI
 test: test.all
 
+# demo
+DEMO_SRC = demo/demo.c
 
+$(BUILD_DIR)/demo: $(SRC) $(DEMO_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(SRC) $(DEMO_SRC) -o $@
+
+demo: $(BUILD_DIR)/demo
+	@echo "=== DÉMO CFDP : transfert d'image ==="
+	@$(BUILD_DIR)/demo demo/demo-data.txt
 
 clean:
 	rm -rf $(BUILD_DIR)

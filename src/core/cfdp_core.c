@@ -2,7 +2,7 @@
 #include <stdio.h>   // for printf
 #include <string.h> 
 
-#include "../ui/cfdp_ui.h"
+#include "../ui/cfdp_user.h"
 
 
 // Static pool of transactions
