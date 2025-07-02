@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -I./src
+CFLAGS = -Wall -I./src -DCFDP_ENABLE_LOG
 SRC = $(wildcard src/**/*.c)
 TESTS = $(wildcard tests/*.c)
 BUILD_DIR = build
@@ -20,7 +20,7 @@ test.core: | $(BUILD_DIR)
 
 test.fs: | $(BUILD_DIR)
 	@echo "==> Running test_fs"; \
-	$(CC) $(CFLAGS) $(SRC) tests/test_fs.c -o $(BUILD_DIR)/test_fs; \
+	$(CC) $(CFLAGS) $(SRC) tests/test_fs.c -o $(BUCFLAGS ILD_DIR)/test_fs; \
 	$(BUILD_DIR)/test_fs
 
 test.comm_udp: | $(BUILD_DIR)

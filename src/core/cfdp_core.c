@@ -11,7 +11,7 @@ static uint32_t g_next_transaction_id = 1;  // simple transaction ID generator
 
 // minimal logging macro
 #ifdef CFDP_ENABLE_LOG
-#define CFDP_LOG(fmt, ...)   printf("CFDP: " fmt "\n", __VA_ARGS__)
+#define CFDP_LOG(fmt, ...) printf("CFDP: " fmt "\n", ##__VA_ARGS__)
 #else
 #define CFDP_LOG(fmt, ...)   (void)0
 #endif
