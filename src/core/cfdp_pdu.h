@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <stdbool.h>
 
 #define CFDP_VERSION 0x1 // version 2 of the protocol
 #define CFDP_PDU_TYPE_FILEDATA 0x1
@@ -25,22 +24,29 @@
 
 
 typedef struct {
-    uint8_t version;
-    uint8_t pdu_type;
-    uint8_t direction;
-    uint8_t transmission_mode;
-    uint8_t crc_flag;
-    uint8_t large_flag_flag;
-    uint16_t data_field_length;
+    uint8_t version;                // 1 bit
+    uint8_t pdu_type;               // 1 bit
+    uint8_t direction;              // 1 bit
+    uint8_t transmission_mode;      // 1 bit
+    uint8_t crc_flag;               // 1 bit
+    uint8_t large_flag_flag;        // 1 bit
+    uint16_t data_field_length;     // 1 bit
 
-    uint8_t segmentation_control;
-    uint8_t id_length;
+    uint8_t segmentation_control; // 1 bit, always 0 in class 1
+    uint8_t id_length; // number of bytes minus 1 (0=1 byte, 3=4 bytes)
+    uint8_t seq_length; // same as above
+    
     // uint8_t segment_metadata_flag; not used in class 1 - always 0
-    uint8_t seq_length;
-
     uint32_t source_entity_id;
     uint32_t transaction_seq_num;
     uint32_t dest_entity_id;
 } CfdpPduHeader;
+
+// serialize header into buffer, return the number of bytes written
+size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr);
+
+
+
+
 
 #endif
