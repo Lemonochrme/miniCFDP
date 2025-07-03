@@ -24,4 +24,23 @@
 #define CFDP_TRANSFER_SEQUENCE_LENGTH 4
 
 
+typedef struct {
+    uint8_t version;
+    uint8_t pdu_type;
+    uint8_t direction;
+    uint8_t transmission_mode;
+    uint8_t crc_flag;
+    uint8_t large_flag_flag;
+    uint16_t data_field_length;
+
+    uint8_t segmentation_control;
+    uint8_t id_length;
+    // uint8_t segment_metadata_flag; not used in class 1 - always 0
+    uint8_t seq_length;
+
+    uint32_t source_entity_id;
+    uint32_t transaction_seq_num;
+    uint32_t dest_entity_id;
+} CfdpPduHeader;
+
 #endif
