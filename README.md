@@ -13,25 +13,27 @@ Run `make` on a POSIX system.
 
 ## Directory Structure
 ```
-cfdp_project/
-├── Makefile
-├── README.md
-├── src/
-│   ├── core/
-│   │   ├── cfdp_core.h
-│   │   └── cfdp_core.c
-│   ├── fs/
-│   │   ├── cfdp_fs.h
-│   │   └── cfdp_fs_posix.c
-│   ├── comm/
+├── Makefile                        # Compilation and Testing
+├── src
+│   ├── comm                        # Communication Interface (abstraction of the Underlying Transport (UT) network layer used to send and receive CFDP PDUs)
 │   │   ├── cfdp_comm.h
+│   │   ├── cfdp_comm_pus.c
 │   │   └── cfdp_comm_udp.c
-│   ├── mib/
-│   │   ├── cfdp_mib.h
-│   │   └── cfdp_mib.c
-│   └── ui/
-│       ├── cfdp_user.h
-│       └── cfdp_user.c
+│   ├── core                        # CFDP Core (implementing CFDP Class 1 logic)
+│   │   ├── cfdp_core.c             # State machines
+│   │   ├── cfdp_core.h
+│   │   ├── cfdp_pdu.c              # PDU serialization and deserialization
+│   │   └── cfdp_pdu.h
+│   ├── fs                          # File Store Interface (abstraction of the underlying file system)
+│   │   ├── cfdp_fs.h
+│   │   ├── cfdp_fs_posix.c
+│   │   └── cfdp_fs_rtems.c
+│   ├── mib                         # Management Information Base (holds the configurations and state parameters for the CFDP entity)
+│   │   ├── cfdp_mib.c
+│   │   └── cfdp_mib.h
+│   └── ui                          # CFDP User Interface APIs
+│       ├── cfdp_user.c
+│       └── cfdp_user.h
 ```
 
 ### Testing
@@ -41,39 +43,3 @@ Run all tests using:
 ```bash
 make test.all
 ```
-
-Each test verifies a module of the system:
-
-#### File System (`test_fs`)
-
-* Create a test file.
-* Write text to it.
-* Read the file back and check the content.
-* Rename the file.
-* Delete the renamed file.
-
-#### UDP Communication (`test_comm_udp`)
-
-* Start a sender and a receiver as two local processes.
-* Initialize each with a different CFDP entity ID and port.
-* Sender sends a message to the receiver using CFDP's UDP logic.
-* Receiver receives the message and checks:
-  * The data matches.
-  * The sender entity ID is correct.
-
-
-#### Core Logic (`test_core`)
-
-* Create a source file with known content.
-* Set up local and remote entity info in memory.
-* Register a callback to capture transaction events.
-* Start a transaction to send the file.
-* Verify:
-  * The file was fully sent.
-  * The completion event was triggered.
-* Simulate receiving the same file using `cfdp_process_pdu()`.
-* Verify:
-  * The file was re-created.
-  * The content matches.
-  * The receive transaction completed successfully.
-* Clean up all files.
