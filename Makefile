@@ -20,7 +20,7 @@ test.core: | $(BUILD_DIR)
 
 test.fs: | $(BUILD_DIR)
 	@echo "==> Running test_fs"; \
-	$(CC) $(CFLAGS) $(SRC) tests/test_fs.c -o $(BUCFLAGS ILD_DIR)/test_fs; \
+	$(CC) $(CFLAGS) $(SRC) tests/test_fs.c -o $(BUILD_DIR)/test_fs; \
 	$(BUILD_DIR)/test_fs
 
 test.comm_udp: | $(BUILD_DIR)
@@ -34,16 +34,6 @@ test.all: test.fs test.comm_udp test.core
 
 # legacy shortcut for CI
 test: test.all
-
-# demo
-DEMO_SRC = demo/demo.c
-
-$(BUILD_DIR)/demo: $(SRC) $(DEMO_SRC) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(SRC) $(DEMO_SRC) -o $@
-
-demo: $(BUILD_DIR)/demo
-	@echo "=== DÉMO CFDP : transfert d'image ==="
-	@$(BUILD_DIR)/demo demo/demo-data.txt
 
 clean:
 	rm -rf $(BUILD_DIR)
