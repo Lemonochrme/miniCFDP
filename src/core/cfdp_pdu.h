@@ -22,7 +22,7 @@
 #define CFDP_ENTITY_ID_LENGTH 4
 #define CFDP_TRANSFER_SEQUENCE_LENGTH 4
 
-
+// See 720x2g4
 typedef struct {
     uint8_t version;                // 1 bit
     uint8_t pdu_type;               // 1 bit

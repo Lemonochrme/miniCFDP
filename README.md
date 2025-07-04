@@ -6,7 +6,17 @@ It is statically allocated, platform-independent, and compiles under both Linux 
 ## Features
 - Fully static memory (no malloc)
 - Modular architecture: Core, FS, Comm, MIB, UI
-- Initial support for Class 1 (unacknowledged mode)
+- Initial support for Class 1 (unacknowledged mode) - Ongoing
+
+## ToDo
+
+- PDU Generation
+    - Fixed Header Serialization
+    - Metadata PDU generation
+    - File Data PDU generation
+    - EOF PDU generation
+- File Data Segmentation
+- Think about how to handle both standard and qualified CNES libc libraries
 
 ## Building
 Run `make` on a POSIX system.

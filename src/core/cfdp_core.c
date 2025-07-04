@@ -4,14 +4,16 @@
 
 #include "../ui/cfdp_user.h"
 
+// Todo : Check for MISRA compliance
 
 // Static pool of transactions
 static CfdpTransaction g_transactions[CFDP_MAX_TRANSACTIONS];
 static uint32_t g_next_transaction_id = 1;  // simple transaction ID generator
 
 // minimal logging macro
+// Todo : Remove this as not MISRA compliant
 #ifdef CFDP_ENABLE_LOG
-#define CFDP_LOG(fmt, ...) printf("CFDP: " fmt "\n", ##__VA_ARGS__)
+#define CFDP_LOG(fmt, ...) printf("CFDP: " fmt "\n", ##__VA_ARGS__) 
 #else
 #define CFDP_LOG(fmt, ...)   (void)0
 #endif
@@ -51,13 +53,15 @@ int cfdp_start_transaction(uint32_t dest_id, const char *src_file, const char *d
     t->dest_file = dest_file;
     t->bytes_sent = 0;
     t->bytes_received = 0;
-    CFDP_LOG("Starting transaction %u: send %s to entity %u as %s", 
-             t->transaction_id, src_file, dest_id, dest_file);
+
+    CFDP_LOG("Starting transaction %u: send %s to entity %u as %s", t->transaction_id, src_file, dest_id, dest_file);
+
     // ppen source file for reading
     int fd = cfdp_fs_open(src_file, false);
     if (fd < 0) {
         CFDP_LOG("Error: cannot open source file %s", src_file);
         t->state = CFDP_TRAN_STATE_CANCELLED;
+
         // notify user of transaction finished with failure
         cfdp_notify_event(t->transaction_id, CFDP_EVENT_TRANSACTION_FINISHED, CFDP_STATUS_FILE_ERROR);
         return -1;
@@ -68,17 +72,21 @@ int cfdp_start_transaction(uint32_t dest_id, const char *src_file, const char *d
 
     // TODO : send a Metadata PDU here with file size, name, etc... before sending file data.
 
+    // TODO : Implement real CFDP logic Metadata PDU -> Segmented File Data PDU -> End-of-File PDU
     while ((bytes_read = cfdp_fs_read(fd, buffer, sizeof(buffer))) > 0) {
         // TODO : form a File Data PDU with offset and data
         cfdp_comm_send(dest_id, buffer, bytes_read);
         t->bytes_sent += bytes_read;
-        // (Omitted: check if we need to throttle or wait for some condition)
     }
+
     cfdp_fs_close(fd);
+
     // TODO : Send an EOF PDU indicating end-of-file
     // TODO : if closure requested expect a finished PDU from receiver
+
     t->state = CFDP_TRAN_STATE_COMPLETED;
     CFDP_LOG("Transaction %u completed (sent %zu bytes)", t->transaction_id, t->bytes_sent);
+
     // notify user that transaction finished successfully
     cfdp_notify_event(t->transaction_id, CFDP_EVENT_TRANSACTION_FINISHED, CFDP_STATUS_SUCCESS);
     return t->transaction_id;
@@ -105,6 +113,7 @@ void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, uint32_t src_entity_id
     // TODO : Implement full parsing
     // Minimal PDU handling: In a complete implementation, we would parse the  header to determine PDU type (Metadata, File Data, EOF, Finished...) and act accordingly. Here we assume any received data is file data for an active receive transaction.
     CFDP_LOG("Received PDU of length %zu from entity %u", pdu_len, src_entity_id);
+    
     // find or start a receive transaction for this source
     CfdpTransaction *rx = NULL;
     for (int i = 0; i < CFDP_MAX_TRANSACTIONS; ++i) {
@@ -129,7 +138,7 @@ void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, uint32_t src_entity_id
         rx->bytes_received = 0;
         
 
-        rx->dest_file = "recv_file.dat";
+        rx->dest_file = "recv_file.dat"; // the name is static for now for debug purposes
         CFDP_LOG("Initiated receive transaction %u from entity %u", rx->transaction_id, src_entity_id);
 
         int fd = cfdp_fs_open(rx->dest_file, true); // open file for writing
@@ -148,7 +157,9 @@ void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, uint32_t src_entity_id
         cfdp_fs_close(fd);
     }
     rx->bytes_received += pdu_len;
-    // TODO : here we assume this PDU could be final; in real logic, check if EOF PDU
+
+    // TODO : Implement PDU handling
+    // here we assume this PDU could be final; in real logic, check if EOF PDU
     // for now assume this was EOF or last data.
     
     rx->state = CFDP_TRAN_STATE_COMPLETED;
@@ -158,7 +169,7 @@ void cfdp_process_pdu(const uint8_t *pdu, size_t pdu_len, uint32_t src_entity_id
 
 void cfdp_tick(void) {
     // nothing for now
-    // for Class 1 : check if any receive transaction have been incative for too long
+    // TODO : for Class 1 : check if any receive transaction have been incative for too long
 }
 
 void cfdp_shutdown(void) {
