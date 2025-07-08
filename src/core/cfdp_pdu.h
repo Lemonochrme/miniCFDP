@@ -46,7 +46,4 @@ typedef struct {
 size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr);
 
 
-
-
-
 #endif

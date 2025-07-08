@@ -28,8 +28,13 @@ test.comm_udp: | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(SRC) tests/test_comm_udp.c -o $(BUILD_DIR)/test_comm_udp; \
 	$(BUILD_DIR)/test_comm_udp
 
+test.pdu_header_serialization: | $(BUILD_DIR)
+	@echo "==> Running test_pdu_header_serialization"; \
+	$(CC) $(CFLAGS) $(SRC) tests/test_pdu_header_serialization.c -o $(BUILD_DIR)/test_pdu_header_serialization; \
+	$(BUILD_DIR)/test_pdu_header_serialization
+
 # run all tests
-test.all: test.fs test.comm_udp test.core
+test.all: test.fs test.comm_udp test.core test.pdu_header_serialization
 	@echo "==> All tests passed."
 
 # legacy shortcut for CI

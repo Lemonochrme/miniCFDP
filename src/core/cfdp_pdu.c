@@ -10,18 +10,6 @@ static void write_be32(uint8_t *p, uint32_t v) {
     p[3] = (uint8_t)(v >> 0);
 }
 
-// write big endian integers 64 bit
-static void write_be64(uint8_t *p, uint32_t v) {
-    p[0] = (uint8_t)(v >> 56);
-    p[1] = (uint8_t)(v >> 48);
-    p[2] = (uint8_t)(v >> 40);
-    p[3] = (uint8_t)(v >> 32);
-    p[4] = (uint8_t)(v >> 24);
-    p[5] = (uint8_t)(v >> 16);
-    p[6] = (uint8_t)(v >> 8);
-    p[7] = (uint8_t)(v >> 0);
-}
-
 // Header serialization
 size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr) {
     uint8_t first = 0;
@@ -46,5 +34,7 @@ size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr) {
     write_be32(buf + 4, hdr->source_entity_id);
     write_be32(buf + 8, hdr->transaction_seq_num);
     write_be32(buf + 12, hdr->dest_entity_id);
+
+    return 16;
 }
 

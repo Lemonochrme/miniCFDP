@@ -3,6 +3,7 @@
         "unistd.h": "c",
         "cfdp_fs.h": "c",
         "stdio.h": "c",
-        "cfdp_user.h": "c"
+        "cfdp_user.h": "c",
+        "cfdp_pdu.h": "c"
     }
 }
