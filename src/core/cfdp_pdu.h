@@ -33,13 +33,13 @@ typedef struct {
     uint16_t data_field_length;     // 1 bit
 
     uint8_t segmentation_control; // 1 bit, always 0 in class 1
-    uint8_t id_length; // number of bytes minus 1 (0=1 byte, 3=4 bytes)
+    uint8_t eid_length; // number of bytes minus 1 (0=1 byte, 3=4 bytes) Entity ID Length
     uint8_t seq_length; // same as above
     
     // uint8_t segment_metadata_flag; not used in class 1 - always 0
-    uint32_t source_entity_id;
-    uint32_t transaction_seq_num;
-    uint32_t dest_entity_id;
+    uint32_t source_entity_id; // 4 bytes
+    uint32_t transaction_seq_num; // 4 bytes
+    uint32_t dest_entity_id; // 4 bytes
 } CfdpPduHeader;
 
 // serialize header into buffer, return the number of bytes written
