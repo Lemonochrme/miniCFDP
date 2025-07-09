@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
 
 #define CFDP_VERSION 0x1 // version 2 of the protocol
 #define CFDP_PDU_TYPE_FILEDATA 0x1
@@ -48,5 +49,7 @@ size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr);
 size_t cfdp_build_metadata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint32_t file_size, uint8_t closure_requested, const char *source_filename, const char *dest_filename);
 
 size_t cfdp_build_filedata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint64_t offset, const uint8_t *data, size_t data_len);
+
+size_t cfdp_build_eof_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint8_t condition_code, uint32_t checksum, uint64_t file_size);
 
 #endif

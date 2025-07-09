@@ -101,6 +101,7 @@ size_t cfdp_build_filedata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint64_t 
     // segment offset, size depends on large_flag_size
     if (hdr->large_flag_flag) {
         write_be64(buf + pos, offset);
+        pos += 8;
     } else {
         write_be32(buf + pos, (uint32_t)offset);
         pos += 4;
@@ -108,6 +109,39 @@ size_t cfdp_build_filedata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint64_t 
 
     memcpy(buf + pos, data, data_len);
     pos += data_len;
+
+    return pos;
+}
+
+
+
+
+
+
+
+size_t cfdp_build_eof_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint8_t condition_code, uint32_t checksum, uint64_t file_size) {
+    size_t pos = 0;
+
+    pos += cfdp_serialize_header(buf + pos, hdr);
+
+    // direction code : 0x04 = EOF
+    buf[pos++] = CFDP_DIRECTIVE_EOF;
+
+    // condition code (4 bits) + spare 0
+    buf[pos++] = (condition_code & 0x0F) << 4;
+
+    // 32 bits checksum
+    write_be32(buf + pos, checksum);
+    pos += 4;
+
+    // file size (FSS : 32 or 64 bits)
+    if (hdr->large_flag_flag) {
+        write_be64(buf + pos, file_size);
+        pos += 8;
+    } else {
+        write_be32(buf + pos, (uint32_t)file_size);
+        pos += 4;
+    }
 
     return pos;
 }
