@@ -45,5 +45,6 @@ typedef struct {
 // serialize header into buffer, return the number of bytes written
 size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr);
 
+size_t cfdp_build_metadata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint32_t file_size, uint8_t closure_requested, const char *source_filename, const char *dest_filename);
 
 #endif

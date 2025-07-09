@@ -21,10 +21,10 @@ size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr) {
     first |= (hdr->large_flag_flag & 0x1) << 0;     // 0000 000x
 
     uint8_t second = 0;
-    second |= (hdr->segmentation_control & 0x1) << 7; // x000 0000
-    second |= (hdr->eid_length & 0x07) << 4;          // 0xxx 0000
+    second |= (hdr->segmentation_control & 0x1) << 7;     // x000 0000
+    second |= (hdr->eid_length & 0x07) << 4;              // 0xxx 0000
     second |= (0 << 3); // segment metadata always 0 for now 0000 x000
-    second |= (hdr->seq_length & 0x07) << 0;          // 0000 000x
+    second |= (hdr->seq_length & 0x07) << 0;              // 0000 0xxx
 
     buf[0] = first;
     buf[1] = (uint8_t)(hdr->data_field_length >> 8); // the first 2 bytes
@@ -37,4 +37,43 @@ size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr) {
 
     return 16;
 }
+
+size_t cfdp_build_metadata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint32_t file_size, uint8_t closure_requested, const char *source_filename, const char *dest_filename) {
+    
+    // buf[pos++]; -> buf[pos]; pos++;
+
+    size_t pos = 0; // offset "selector"
+
+    // serialize fixed header (16 bytes)
+    pos += cfdp_serialize_header(buf + pos, hdr);
+
+    // file directive code
+    buf[pos++] = CFDP_DIRECTIVE_METADATA;
+
+    // 0x40 = 0100 0000 closure requested + 6 reserved bytes = 0 
+    buf[pos++] = (closure_requested ? 0x40 : 0x00);
+
+    // file size (4 bytes big endian)
+    write_be32(buf + pos, file_size);
+    pos += 4;
+
+    // source filename Length-Value
+    uint8_t len_src = (uint8_t)strlen(source_filename);
+    buf[pos++] = len_src;
+    memcpy(buf + pos, source_filename, len_src);
+    pos += len_src;
+
+    // destination filename Length-Value
+    uint8_t len_dst = (uint8_t)strlen(dest_filename);
+    buf[pos++] = len_dst;
+    memcpy(buf + pos, dest_filename, len_dst);
+    pos += len_dst;
+
+    // no Type-Length-Value option = 0x00
+    buf[pos++] = 0x00;
+
+    return pos;
+}
+
+
 

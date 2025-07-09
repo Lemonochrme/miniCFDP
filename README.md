@@ -53,3 +53,53 @@ Run all tests using:
 ```bash
 make test.all
 ```
+
+# Terms and Definitions
+
+- LV : Lenght-Value
+    - Lenght is a coded value indicating how many bytes are next to represent the value
+    - Value is the real data of variable lenght
+
+Example : Let the file `"input.txt"` (9 characters) to represent it in a Lenght-Value manner we would encode it like so :
+
+```
+             Value
+   |------------------------|
+09 69 6E 70 75 74 2E 74 78 74
+Λ
+Lenght
+```
+
+In the case of the CCSDS CFDP the format of LV objects is defined in the following :
+
+
+| Field  | Size (bit) | Values   | Lenght of value  |
+| ------ | ---------- | -------- | ---------------- |
+| Length | 8          | 0 to 255 | Length of value  |
+| Value  | 8 x Length |          |                  |
+
+
+- TLV : Type-Lenght-Value
+
+
+| Field  | Size (bit) | Values         | Lenght of value |
+| ------ | ---------- | -------------- | --------------- |
+| Type   | 8          | Directive Code | Nature of value |
+| Length | 8          | 0 to 255       | Length of value |
+| Value  | 8 x Length |                |                 |
+
+| Directive Code (Hexadecimal) | Directive      |
+| ---------------------------- | -------------- |
+| 00                           | Reserved       |
+| 01                           | Reserved       |
+| 02                           | Reserved       |
+| 03                           | Reserved       |
+| 04                           | EOF PDU        |
+| 05                           | Finished PDU   |
+| 06                           | ACK PDU        |
+| 07                           | Metadata PDU   |
+| 08                           | NAK PDU        |
+| 09                           | Prompt PDU     |
+| 0C                           | Keep Alive PDU |
+| 0D-FF                        | Reserved       |
+

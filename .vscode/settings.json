@@ -4,6 +4,11 @@
         "cfdp_fs.h": "c",
         "stdio.h": "c",
         "cfdp_user.h": "c",
-        "cfdp_pdu.h": "c"
+        "cfdp_pdu.h": "c",
+        "concepts": "c",
+        "cstdio": "c",
+        "type_traits": "c",
+        "new": "c",
+        "typeinfo": "c"
     }
 }
