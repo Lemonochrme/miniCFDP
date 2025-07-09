@@ -2,13 +2,25 @@
 
 // utility functions
 
-// write big endian integers 32 bit
+// write big endian integers 32 bits
 static void write_be32(uint8_t *p, uint32_t v) {
     p[0] = (uint8_t)(v >> 24);
     p[1] = (uint8_t)(v >> 16);
     p[2] = (uint8_t)(v >> 8);
     p[3] = (uint8_t)(v >> 0);
 }
+// write big endian integers 64 bits
+static void write_be64(uint8_t *p, uint64_t v) {
+    p[0] = (uint8_t)(v >> 56);
+    p[1] = (uint8_t)(v >> 48);
+    p[2] = (uint8_t)(v >> 40);
+    p[3] = (uint8_t)(v >> 32);
+    p[4] = (uint8_t)(v >> 24);
+    p[5] = (uint8_t)(v >> 16);
+    p[6] = (uint8_t)(v >> 8);
+    p[7] = (uint8_t)(v >> 0);
+}
+
 
 // Header serialization
 size_t cfdp_serialize_header(uint8_t *buf, const CfdpPduHeader *hdr) {
@@ -77,3 +89,25 @@ size_t cfdp_build_metadata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint32_t 
 
 
 
+size_t cfdp_build_filedata_pdu(uint8_t *buf, const CfdpPduHeader *hdr, uint64_t offset, const uint8_t *data, size_t data_len) {
+    size_t pos = 0;
+
+    // serialize header (16 bytes)
+    pos += cfdp_serialize_header(buf + pos, hdr);
+
+    // no segment data, no record continuation (always 0x00)
+    buf[pos++] = 0x00;
+
+    // segment offset, size depends on large_flag_size
+    if (hdr->large_flag_flag) {
+        write_be64(buf + pos, offset);
+    } else {
+        write_be32(buf + pos, (uint32_t)offset);
+        pos += 4;
+    }
+
+    memcpy(buf + pos, data, data_len);
+    pos += data_len;
+
+    return pos;
+}

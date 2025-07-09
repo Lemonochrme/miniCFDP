@@ -15,6 +15,7 @@ It is statically allocated, platform-independent, and compiles under both Linux 
     - Metadata PDU generation
     - File Data PDU generation
     - EOF PDU generation
+    - Finished PDU
 - File Data Segmentation
 - Think about how to handle both standard and qualified CNES libc libraries
 
