@@ -23,6 +23,41 @@
 #define CFDP_ENTITY_ID_LENGTH 4
 #define CFDP_TRANSFER_SEQUENCE_LENGTH 4
 
+// ----==== Some Constants ====----
+
+// Fixed PDU Header (always 16 bytes in this implementation)
+#define CFDP_FIXED_HEADER_LEN             16
+
+// Metadata PDU payload structure (excluding header)
+#define CFDP_METADATA_DIRECTIVE_LEN       1   // 0x07
+#define CFDP_METADATA_FLAGS_LEN           1   // closure + reserved
+#define CFDP_METADATA_FILESIZE_LEN        4   // 32-bit only
+#define CFDP_METADATA_SRCFN_LEN_LEN       1   // 1 byte length prefix
+#define CFDP_METADATA_DSTFN_LEN_LEN       1   // idem
+#define CFDP_METADATA_TLV_LIST_LEN        1   // optional, set to 0
+
+#define CFDP_METADATA_PDU_OVERHEAD_LEN \
+    (CFDP_METADATA_DIRECTIVE_LEN + CFDP_METADATA_FLAGS_LEN + CFDP_METADATA_FILESIZE_LEN + \
+     CFDP_METADATA_SRCFN_LEN_LEN + CFDP_METADATA_DSTFN_LEN_LEN + CFDP_METADATA_TLV_LIST_LEN)
+
+// File Data PDU
+#define CFDP_FILEDATA_CONTINUATION_LEN    1   // always present
+#define CFDP_FILEDATA_OFFSET_LEN          4   // always 32-bit (no large files)
+
+#define CFDP_FILEDATA_HEADER_OVERHEAD \
+    (CFDP_FIXED_HEADER_LEN + CFDP_FILEDATA_CONTINUATION_LEN + CFDP_FILEDATA_OFFSET_LEN)
+
+// EOF PDU payload structure (excluding header)
+#define CFDP_EOF_DIRECTIVE_LEN            1   // 0x04
+#define CFDP_EOF_CONDITION_LEN            1   // 4-bit + 4-bit
+#define CFDP_EOF_CHECKSUM_LEN             4   // CRC32
+#define CFDP_EOF_FILESIZE_LEN             4   // 32-bit only
+
+#define CFDP_EOF_PDU_DATA_LEN \
+    (CFDP_EOF_DIRECTIVE_LEN + CFDP_EOF_CONDITION_LEN + CFDP_EOF_CHECKSUM_LEN + CFDP_EOF_FILESIZE_LEN)
+
+
+
 // See 720x2g4
 typedef struct {
     uint8_t version;                // 1 bit

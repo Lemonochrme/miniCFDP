@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdint.h>
 
 int cfdp_fs_open(const char *filename, int write_mode) {
     if (!write_mode) {
@@ -43,5 +45,19 @@ int cfdp_fs_rename(const char *old_name, const char *new_name) {
     return rename(old_name, new_name);
 }
 
+uint64_t cfdp_fs_size(int fh) {
+    if (fh < 0) return 0;
 
+    // save current position
+    off_t current = lseek(fh, 0, SEEK_CUR);
+    if (current < 0) return 0;
 
+    // Seek end of file
+    off_t end = lseek(fh, 0, SEEK_END);
+    if (end < 0) return 0;
+
+    // back to initial position
+    lseek(fh, current, SEEK_SET);
+
+    return (uint64_t)end;
+}

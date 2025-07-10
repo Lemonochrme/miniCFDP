@@ -1,8 +1,11 @@
 #include "cfdp_core.h"
 #include <stdio.h>   // for printf
-#include <string.h> 
+#include <string.h>
+#include <stdint.h>
 
 #include "../ui/cfdp_user.h"
+#include "../src/mib/cfdp_mib.h"
+#include "cfdp_pdu.h"
 
 // Todo : Check for MISRA compliance
 
@@ -43,52 +46,86 @@ int cfdp_start_transaction(uint32_t dest_id, const char *src_file, const char *d
     CfdpTransaction *t = allocate_transaction();
     if (!t) {
         CFDP_LOG("No available transaction slots for new Put.request");
-        return -1;  // no space
+        return -1;
     }
-    // Initialize transaction details
+
     t->state = CFDP_TRAN_STATE_SENDING;
     t->transaction_id = g_next_transaction_id++;
     t->dest_entity_id = dest_id;
     t->source_file = src_file;
     t->dest_file = dest_file;
     t->bytes_sent = 0;
-    t->bytes_received = 0;
 
-    CFDP_LOG("Starting transaction %u: send %s to entity %u as %s", t->transaction_id, src_file, dest_id, dest_file);
+    CFDP_LOG("Starting transaction %u: send %s to entity %u as %s",
+             t->transaction_id, src_file, dest_id, dest_file);
 
-    // ppen source file for reading
     int fd = cfdp_fs_open(src_file, false);
     if (fd < 0) {
         CFDP_LOG("Error: cannot open source file %s", src_file);
         t->state = CFDP_TRAN_STATE_CANCELLED;
-
-        // notify user of transaction finished with failure
         cfdp_notify_event(t->transaction_id, CFDP_EVENT_TRANSACTION_FINISHED, CFDP_STATUS_FILE_ERROR);
         return -1;
     }
-    // read file in segments and send PDUs
-    uint8_t buffer[1024];
-    size_t bytes_read;
 
-    // TODO : send a Metadata PDU here with file size, name, etc... before sending file data.
+    uint32_t fsize = (uint32_t)cfdp_fs_size(fd); // forcibly truncated
+    bool is_large = false; // disabled support
+    (void)is_large;
 
-    // TODO : Implement real CFDP logic Metadata PDU -> Segmented File Data PDU -> End-of-File PDU
-    while ((bytes_read = cfdp_fs_read(fd, buffer, sizeof(buffer))) > 0) {
-        // TODO : form a File Data PDU with offset and data
-        cfdp_comm_send(dest_id, buffer, bytes_read);
-        t->bytes_sent += bytes_read;
+    CfdpPduHeader hdr = {
+        .version = CFDP_VERSION,
+        .pdu_type = CFDP_PDU_TYPE_FILEDIR,
+        .direction = CFDP_DIRECT_TOWARD_RECEIVER,
+        .transmission_mode = CFDP_MODE_UNACKED,
+        .crc_flag = 0,
+        .large_flag_flag = 0,
+        .segmentation_control = 0,
+        .eid_length = 3,
+        .seq_length = 3,
+        .source_entity_id = cfdp_mib.local.entity_id,
+        .transaction_seq_num = t->transaction_id,
+        .dest_entity_id = dest_id
+    };
+
+    // --- Metadata PDU ---
+    size_t meta_len;
+    uint8_t meta_buf[512];
+
+    hdr.data_field_length = CFDP_METADATA_PDU_OVERHEAD_LEN + strlen(src_file) + strlen(dest_file);
+    meta_len = cfdp_build_metadata_pdu(meta_buf, &hdr, fsize, closure, src_file, dest_file);
+    CFDP_LOG("helo metadata");
+    cfdp_comm_send(dest_id, meta_buf, meta_len);
+
+    // --- File Data PDUs ---
+    uint8_t io_buf[1024];
+    uint64_t offset = 0;
+
+    size_t max_data_len = sizeof(io_buf) - CFDP_FILEDATA_HEADER_OVERHEAD;
+    size_t read_len;
+    while ((read_len = cfdp_fs_read(fd, io_buf + CFDP_FILEDATA_HEADER_OVERHEAD, max_data_len)) > 0) {
+        CFDP_LOG("helo data");
+        hdr.pdu_type = CFDP_PDU_TYPE_FILEDATA;
+        hdr.data_field_length = CFDP_FILEDATA_CONTINUATION_LEN + CFDP_FILEDATA_OFFSET_LEN + read_len;
+        size_t plen = cfdp_build_filedata_pdu(io_buf, &hdr, offset, io_buf + CFDP_FILEDATA_HEADER_OVERHEAD, read_len);
+        cfdp_comm_send(dest_id, io_buf, plen);
+        offset += read_len;
+        t->bytes_sent += read_len;
     }
 
     cfdp_fs_close(fd);
 
-    // TODO : Send an EOF PDU indicating end-of-file
-    // TODO : if closure requested expect a finished PDU from receiver
+    // --- EOF PDU ---
+    uint8_t eof_buf[64];
+    hdr.pdu_type = CFDP_PDU_TYPE_FILEDIR;
+    hdr.data_field_length = CFDP_EOF_PDU_DATA_LEN;
+    size_t eof_len = cfdp_build_eof_pdu(eof_buf, &hdr, 0x0, 0, fsize);
+    CFDP_LOG("helo end of file");
+    cfdp_comm_send(dest_id, eof_buf, eof_len);
 
+    // --- Completion ---
     t->state = CFDP_TRAN_STATE_COMPLETED;
     CFDP_LOG("Transaction %u completed (sent %zu bytes)", t->transaction_id, t->bytes_sent);
-
-    // notify user that transaction finished successfully
     cfdp_notify_event(t->transaction_id, CFDP_EVENT_TRANSACTION_FINISHED, CFDP_STATUS_SUCCESS);
+
     return t->transaction_id;
 }
 

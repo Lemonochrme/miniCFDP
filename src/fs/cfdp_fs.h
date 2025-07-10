@@ -2,6 +2,7 @@
 #define CFDP_FS_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 // fh : file handle
 
@@ -22,6 +23,10 @@ int cfdp_fs_delete(const char *filename);
 
 // rename (move) a file within the filestore
 int cfdp_fs_rename(const char *old_name, const char *new_name);
+
+// size of a file
+uint64_t cfdp_fs_size(int fh);
+
 
 
 #endif
