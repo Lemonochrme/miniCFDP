@@ -46,7 +46,7 @@ test.build_filedata_pdu: $(BUILD_DIR)
 test.build_eof_pdu: $(BUILD_DIR)
 	@echo "==> Running test_cfdp_build_eof_pdu"; \
 	$(CC) $(CFLAGS) $(SRC) tests/test_cfdp_build_eof_pdu.c -o $(BUILD_DIR)/test_cfdp_build_eof_pdu; \
-	$(BUILD_DIR)/test_cfdp_build_filedata_pdu
+	$(BUILD_DIR)/test_cfdp_build_eof_pdu
 
 # run all tests
 test.all: test.fs \
