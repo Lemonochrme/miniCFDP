@@ -38,9 +38,19 @@ test.build_metadata_pdu: $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(SRC) tests/test_cfdp_build_metadata_pdu.c -o $(BUILD_DIR)/test_cfdp_build_metadata_pdu; \
 	$(BUILD_DIR)/test_cfdp_build_metadata_pdu
 
+test.build_filedata_pdu: $(BUILD_DIR)
+	@echo "==> Running test_cfdp_build_filedata_pdu"; \
+	$(CC) $(CFLAGS) $(SRC) tests/test_cfdp_build_filedata_pdu.c -o $(BUILD_DIR)/test_cfdp_build_filedata_pdu; \
+	$(BUILD_DIR)/test_cfdp_build_filedata_pdu
 
 # run all tests
-test.all: test.fs test.comm_udp test.core test.pdu_header_serialization test.build_metadata_pdu
+test.all: test.fs \
+	test.comm_udp \
+	test.core \
+	test.pdu_header_serialization \
+	test.build_metadata_pdu \
+	test.build_filedata_pdu
+
 	@echo "==> All tests passed."
 
 # legacy shortcut for CI
