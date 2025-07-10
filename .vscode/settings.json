@@ -9,6 +9,7 @@
         "cstdio": "c",
         "type_traits": "c",
         "new": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "assert.h": "c"
     }
 }
